@@ -42,6 +42,7 @@ import org.springframework.messaging.support.GenericMessage;
 public class RocketMQBroadcastProducerApplication {
 	private static final Logger log = LoggerFactory
 			.getLogger(RocketMQBroadcastProducerApplication.class);
+
 	@Autowired
 	private StreamBridge streamBridge;
 	public static void main(String[] args) {
@@ -56,8 +57,24 @@ public class RocketMQBroadcastProducerApplication {
 				Map<String, Object> headers = new HashMap<>();
 				headers.put(MessageConst.PROPERTY_KEYS, key);
 				headers.put(MessageConst.PROPERTY_ORIGIN_MESSAGE_ID, i);
-				Message<SimpleMsg> msg = new GenericMessage<SimpleMsg>(new SimpleMsg("Hello RocketMQ " + i), headers);
+				Message<SimpleMsg> msg = new GenericMessage<>(new SimpleMsg("Hello RocketMQ " + i), headers);
 				streamBridge.send("producer-out-0", msg);
+				log.info("Producer sent message" + i);
+			}
+		};
+	}
+
+	@Bean
+	public ApplicationRunner otherProducer() {
+		return args -> {
+			for (int i = 0; i < 50; i++) {
+				String key = "KEYS" + i;
+				Map<String, Object> headers = new HashMap<>();
+				headers.put(MessageConst.PROPERTY_KEYS, key);
+				headers.put(MessageConst.PROPERTY_ORIGIN_MESSAGE_ID, i);
+				Message<SimpleMsg> msg = new GenericMessage<>(new SimpleMsg("Hello, This is Other Message" + i), headers);
+				streamBridge.send("producer-out-0", msg);
+				log.info("Other producer sent message" + i);
 			}
 		};
 	}

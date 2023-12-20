@@ -16,16 +16,15 @@
 
 package com.alibaba.cloud.stream.binder.rocketmq.convert;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.messaging.Message;
-import org.springframework.messaging.converter.AbstractMessageConverter;
-import org.springframework.messaging.converter.ByteArrayMessageConverter;
-import org.springframework.messaging.converter.CompositeMessageConverter;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.messaging.converter.MessageConverter;
-import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.converter.*;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -97,6 +96,25 @@ public class RocketMQMessageConverter extends AbstractMessageConverter {
 	@Override
 	protected boolean supports(Class<?> clazz) {
 		return true;
+	}
+
+	@Override
+	protected Object convertToInternal(Object payload, MessageHeaders headers, Object conversionHint) {
+		Message<?> message = null;
+		for (MessageConverter converter : getMessageConverter().getConverters()) {
+			try {
+				message = converter.toMessage(payload, headers);
+			}
+			catch (Exception ignore) {
+			}
+			if (message != null) {
+				return message;
+			}
+		}
+		if (message == null && logger.isDebugEnabled()) {
+			logger.debug("Can convert message " + message.toString());
+		}
+		return message;
 	}
 
 	/**

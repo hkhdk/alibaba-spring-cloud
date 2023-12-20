@@ -41,6 +41,9 @@ public class ValueAnnotationExample {
 	@Value("${spring.cloud.nacos.config.prefix:}")
 	private String prefix;
 
+	@Value("${spring.profile.active}")
+	private String profileActive;
+
 	@Value("${spring.cloud.nacos.config.group:}")
 	private String group;
 
@@ -49,9 +52,10 @@ public class ValueAnnotationExample {
 
 	@GetMapping
 	public Map<String, String> getConfigInfo() {
-		Map<String, String> result = new HashMap<>(4);
+		Map<String, String> result = new HashMap<>(5);
 		result.put("serverAddr", serverAddr);
 		result.put("prefix", prefix);
+		result.put("profileActive", profileActive);
 		result.put("group", group);
 		result.put("namespace", namespace);
 		return result;

@@ -8,6 +8,8 @@ spring:
     nacos:
       config:
         serverAddr: 127.0.0.1:8848
+  profiles:
+    active: dev
   config:
     import:
       - nacos:nacos-config-example.properties?refresh=true

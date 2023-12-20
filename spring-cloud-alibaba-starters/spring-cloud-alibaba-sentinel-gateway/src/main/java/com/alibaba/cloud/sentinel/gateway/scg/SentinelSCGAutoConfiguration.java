@@ -16,12 +16,14 @@
 
 package com.alibaba.cloud.sentinel.gateway.scg;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import com.alibaba.cloud.sentinel.gateway.ConfigConstants;
 import com.alibaba.cloud.sentinel.gateway.FallbackProperties;
+import com.alibaba.csp.sentinel.adapter.gateway.common.SentinelGatewayConstants;
+import com.alibaba.csp.sentinel.adapter.gateway.common.rule.GatewayFlowRule;
+import com.alibaba.csp.sentinel.adapter.gateway.common.rule.GatewayParamFlowItem;
+import com.alibaba.csp.sentinel.adapter.gateway.common.rule.GatewayRuleManager;
 import com.alibaba.csp.sentinel.adapter.gateway.sc.SentinelGatewayFilter;
 import com.alibaba.csp.sentinel.adapter.gateway.sc.callback.BlockRequestHandler;
 import com.alibaba.csp.sentinel.adapter.gateway.sc.callback.GatewayCallbackManager;
@@ -80,6 +82,7 @@ public class SentinelSCGAutoConfiguration {
 		blockRequestHandlerOptional.ifPresent(GatewayCallbackManager::setBlockHandler);
 		initAppType();
 		initFallback();
+		initGatewayRules();
 	}
 
 	public SentinelSCGAutoConfiguration(
@@ -144,6 +147,16 @@ public class SentinelSCGAutoConfiguration {
 				"[Sentinel SpringCloudGateway] register SentinelGatewayFilter with order: {}",
 				gatewayProperties.getOrder());
 		return new SentinelGatewayFilter(gatewayProperties.getOrder());
+	}
+
+	public void initGatewayRules() {
+		Set<GatewayFlowRule> rules = new HashSet<>();
+		rules.add(new GatewayFlowRule()
+				.setResourceMode(SentinelGatewayConstants.RESOURCE_MODE_ROUTE_ID)
+				.setCount(1000)
+				.setIntervalSec(1)
+		);
+		GatewayRuleManager.loadRules(rules);
 	}
 
 }

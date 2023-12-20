@@ -18,11 +18,15 @@ package com.alibaba.cloud.bus.rocketmq.autoconfigurate;
 
 import com.alibaba.cloud.stream.binder.rocketmq.convert.RocketMQMessageConverter;
 
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.bus.BusEnvironmentPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.converter.CompositeMessageConverter;
+import org.springframework.messaging.converter.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BusAutoConfiguration of rocketmq.
@@ -31,6 +35,7 @@ import org.springframework.messaging.converter.CompositeMessageConverter;
  * @see BusEnvironmentPostProcessor
  */
 @Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 public class RocketMQBusAutoConfiguration {
 	/**
 	 * isse: https://github.com/alibaba/spring-cloud-alibaba/issues/2742
@@ -40,5 +45,17 @@ public class RocketMQBusAutoConfiguration {
 	@ConditionalOnMissingBean(name = { RocketMQMessageConverter.DEFAULT_NAME })
 	public CompositeMessageConverter rocketMQMessageConverter() {
 		return new RocketMQMessageConverter().getMessageConverter();
+	}
+
+	@Bean(RocketMQMessageConverter.DEFAULT_NAME)
+	@ConditionalOnMissingBean(name = { RocketMQMessageConverter.DEFAULT_NAME })
+	public CompositeMessageConverter messageConverter() {
+		List<MessageConverter> messageConverters = new ArrayList<>();
+		ByteArrayMessageConverter byteArrayMessageConverter = new ByteArrayMessageConverter();
+		byteArrayMessageConverter.setContentTypeResolver(null);
+		messageConverters.add(byteArrayMessageConverter);
+		messageConverters.add(new StringMessageConverter());
+		messageConverters.add(new MappingJackson2MessageConverter());
+		return new CompositeMessageConverter(messageConverters);
 	}
 }

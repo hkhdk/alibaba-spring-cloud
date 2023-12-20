@@ -36,6 +36,8 @@ public class NacosConfigInfo {
 	 */
 	private String prefix;
 
+	private String profileActive;
+
 	/**
 	 * Nacos group.
 	 */
@@ -60,6 +62,16 @@ public class NacosConfigInfo {
 
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
+	}
+
+	public String getProfileActive()
+	{
+		return profileActive;
+	}
+
+	public void setProfileActive(String profileActive)
+	{
+		this.profileActive = profileActive;
 	}
 
 	public String getGroup() {
